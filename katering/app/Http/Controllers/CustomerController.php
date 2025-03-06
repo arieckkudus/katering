@@ -107,7 +107,51 @@ class CustomerController extends Controller
 
     }
 
-    public function invoice(Request $request, $id_checkout)
+    public function getCartItems()
+    {
+        $checkUser = Auth()->user();
+
+        if ($checkUser->role != '3') {
+            return response()->json(['message' => 'Anda Tidak Ada Akses'], 403);
+        }
+        $user = [
+            'user' => $checkUser,
+        ];
+
+        $cartItems = CheckoutOrder::where('id_user', $checkUser->id)
+            ->where('status', '1') // Hanya yang status = 1 (keranjang)
+            ->with('menuItem') // Mengambil data menu item terkait
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $cartItems
+        ], 200);
+    }
+
+    public function checkoutOrder($id)
+    {
+        $checkUser = Auth()->user();
+
+        if ($checkUser->role != '3') {
+            return response()->json(['status' => 'error', 'message' => 'Anda tidak memiliki akses'], 403);
+        }
+
+        // Cari pesanan berdasarkan ID dan ID User
+        $order = CheckoutOrder::where('id', $id)->where('id_user', $checkUser->id)->first();
+
+        if (!$order) {
+            return response()->json(['status' => 'error', 'message' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        // Ubah status menjadi 2 (Selesai)
+        $order->update(['status' => 2]);
+
+        return response()->json(['status' => 'success', 'message' => 'Checkout berhasil', 'data' => $order], 200);
+    }
+
+
+    public function invoiceId(Request $request, $id_checkout)
     {
         $checkUser = Auth()->user(); // Gunakan Auth::user(), bukan Auth()
 
@@ -119,7 +163,7 @@ class CustomerController extends Controller
         $datainvoice = CheckoutOrder::where('checkout_orders.id', $id_checkout)
             ->where('checkout_orders.id_user', $checkUser->id)
             ->join('menuitem_merchants', 'menuitem_merchants.id', '=', 'checkout_orders.id_menu_item')
-            ->join('profile_merchants', 'profile_merchants.id', '=', 'menuitem_merchants.id_profile_merchant' )
+            ->join('profile_merchants', 'profile_merchants.id', '=', 'menuitem_merchants.id_profile_merchant')
             ->select(
                 'checkout_orders.id',
                 'checkout_orders.id_user',
@@ -161,11 +205,87 @@ class CustomerController extends Controller
             'menu_item' => [
                 'nama_item' => $datainvoice->nama_item,
                 'harga_satuan' => $datainvoice->harga,
-                'nama_perusahaan'=>$datainvoice->nama_perusahaan
+                'nama_perusahaan' => $datainvoice->nama_perusahaan
             ],
 
         ]);
     }
+
+    public function invoice(Request $request)
+    {
+
+        $checkUser = Auth()->user();
+
+        // if ($checkUser->role != '3') {
+        //     return abort(403, 'Anda Tidak Ada Akses');
+        // }
+
+        $datainvoices = CheckoutOrder::where('checkout_orders.id_user', $checkUser->id)
+            ->join('menuitem_merchants', 'menuitem_merchants.id', '=', 'checkout_orders.id_menu_item')
+            ->join('profile_merchants', 'profile_merchants.id', '=', 'menuitem_merchants.id_profile_merchant')
+            ->select(
+                'checkout_orders.id',
+                'checkout_orders.id_user',
+                'checkout_orders.status',
+                'checkout_orders.jumlah_porsi',
+                'checkout_orders.tanggal_pengiriman_makanan',
+                'checkout_orders.created_at',
+                'checkout_orders.updated_at',
+                'menuitem_merchants.nama_item',
+                'menuitem_merchants.harga',
+                'menuitem_merchants.id_profile_merchant',
+                'profile_merchants.nama_perusahaan'
+            )
+            ->where('checkout_orders.status', '=', 2)
+            ->get();
+
+        // Cek apakah ada invoice yang ditemukan
+        if ($datainvoices->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tidak ada invoice ditemukan untuk user ini.'
+            ], 404);
+        }
+
+        // Format response JSON agar lebih terstruktur
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data invoice ditemukan.',
+            'invoices' => $datainvoices->map(function ($invoice) {
+                return [
+                    'id' => $invoice->id,
+                    'id_user' => $invoice->id_user,
+                    'status' => $invoice->status,
+                    'jumlah_porsi' => $invoice->jumlah_porsi,
+                    'tanggal_pengiriman_makanan' => $invoice->tanggal_pengiriman_makanan,
+                    'created_at' => $invoice->created_at,
+                    'updated_at' => $invoice->updated_at,
+                    'total_harga' => $invoice->harga * $invoice->jumlah_porsi, // Total harga dihitung ulang
+                    'menu_item' => [
+                        'nama_item' => $invoice->nama_item,
+                        'harga_satuan' => $invoice->harga,
+                        'nama_perusahaan' => $invoice->nama_perusahaan
+                    ]
+                ];
+            })
+        ]);
+    }
+
+    public function getInvoiceItems()
+    {
+        $checkUser = Auth()->user();
+
+        $invoiceItems = CheckoutOrder::where('id_user', $checkUser->id)
+            ->where('status', '2') // Hanya yang status = 2 (invoice)
+            ->with('invoiceItem') // Mengambil data menu item terkait
+            ->get();
+
+        return response()->json([
+            'status' => 'success mengambil data invoice',
+            'data' => $invoiceItems
+        ], 200);
+    }
+
 
 
 }

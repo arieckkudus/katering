@@ -51,8 +51,11 @@ Route::post('/menuitem/{id}/delete', [MenuitemController::class, 'menuitemdelete
 
 Route::get('/customer/pencarian', [CustomerController::class, 'search']);
 Route::post('/customer/{id_menuitem}/checkout', [CustomerController::class, 'checkOut']);
-Route::get('/customer/{id_checkout}/invoice', [CustomerController::class, 'invoice']);
-
+// Route::get('/customer/invoice', [CustomerController::class, 'invoice']);
+Route::get('/customer/invoice', [CustomerController::class, 'getInvoiceItems']);
+Route::get('/customer/{id_checkout}/invoice', [CustomerController::class, 'invoiceId']);
+Route::get('/customer/cart', [CustomerController::class, 'getCartItems']);
+Route::put('/customer/cart/checkout/{id}', [CustomerController::class, 'checkoutOrder']);
 
 
 

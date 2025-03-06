@@ -15,8 +15,11 @@ class MenuitemController extends Controller
     {
         $checkUser = Auth()->user();
 
-        if ($checkUser->role != '2') {
-            return response()->json('Anda Tidak Ada Akses', 403);
+        if (!$checkUser) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda harus login terlebih dahulu'
+            ], 401);
         }
 
         try {
@@ -59,7 +62,7 @@ class MenuitemController extends Controller
 
         if ($checkUser->role != '2') {
             return response()->json('Anda Tidak Ada Akses', 403);
-        } {
+        }{
             try {
                 $menuItem = MenuitemMerchant::find($id);
 

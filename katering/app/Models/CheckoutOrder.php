@@ -21,4 +21,15 @@ class CheckoutOrder extends Model
         'status',
         'tanggal_pengiriman_makanan'
     ];
+
+    // Relasi ke tabel menuitem_merchants
+    public function menuItem()
+    {
+        return $this->belongsTo(MenuitemMerchant::class, 'id_menu_item', 'id');
+    }
+
+    public function invoiceItem()
+    {
+        return $this->belongsTo(MenuitemMerchant::class, 'id_menu_item', 'id');
+    }
 }

@@ -20,4 +20,12 @@ class MenuitemMerchant extends Model
         'harga',
         'foto'
     ];
+
+    public function checkoutOrders()
+    {
+        return $this->hasMany(CheckoutOrder::class, 'id_menu_item', 'id');
+    }
+
+
+
 }

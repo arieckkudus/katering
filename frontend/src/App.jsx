@@ -10,6 +10,7 @@ import EditClient from "./components/DAdmin/editClient";
 import AddItem from "./components/DMerchant/AddMenuItem";
 import MenuItemList from "./components/DMerchant/ListItem";
 import MenuItemEdit from "./components/DMerchant/EditMenuItem";
+import Invoice from "./components/DAdmin/invoice";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/add-menuitem" element={<AddItem />} />
         <Route path="/list-menuitem" element={<MenuItemList />} />
         <Route path="/menuitem/edit/:id" element={<MenuItemEdit />} />
+        <Route path="/invoice" element={<Invoice />} />
         
         {/* Tambahkan halaman lain di sini */}
       </Routes>
