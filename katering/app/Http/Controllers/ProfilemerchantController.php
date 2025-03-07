@@ -14,9 +14,9 @@ class ProfilemerchantController extends Controller
     {
         $checkUser = Auth()->user();
 
-        if ($checkUser->role != '1') {
-            return response()->json('Anda Tidak Ada Akses', 403);
-        }
+        // if ($checkUser->role != '1') {
+        //     return response()->json('Anda Tidak Ada Akses', 403);
+        // }
 
         try {
             $merchants = ProfileMerchant::all();
@@ -40,9 +40,10 @@ class ProfilemerchantController extends Controller
     {
         $checkUser = Auth()->user();
 
-        if ($checkUser->role != '1') {
-            return response()->json('Anda Tidak Ada Akses', 403);
-        } {
+        // if ($checkUser->role != '1') {
+        //     return response()->json('Anda Tidak Ada Akses', 403);
+        // }
+        {
             try {
                 $merchants = ProfileMerchant::find($id);
 

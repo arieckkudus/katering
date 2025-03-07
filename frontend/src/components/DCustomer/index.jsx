@@ -37,8 +37,18 @@ function DashboardCustomer() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [jumlahPorsi, setJumlahPorsi] = useState(1);
   const [tanggalPemesanan, setTanggalPemesanan] = useState("");
+  const [openInvoiceDialog, setOpenInvoiceDialog] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
 
-  const [Nama, SetNama] = useState("arya");
+  const handleDetailInvoice = (item) => {
+    setSelectedInvoice(item);
+    setOpenInvoiceDialog(true);
+  };
+
+  const handleCloseDetailInvoice = () => {
+    setOpenInvoiceDialog(false);
+    setSelectedInvoice(null);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -84,7 +94,7 @@ function DashboardCustomer() {
       .get(`/customer/invoice`)
       .then((res) => {
         console.log(res);
-        
+
         if (res.data.data) {
           setInvoices(res.data.data);
         }
@@ -140,12 +150,10 @@ function DashboardCustomer() {
       .catch(() => console.error("Gagal menambahkan ke checkout"));
   };
   useEffect(() => {
-    return( ) => {
+    return () => {
       console.log(invoices);
-      
-    }
-  },[invoices] );
-
+    };
+  }, [invoices]);
 
   return (
     <Container>
@@ -214,7 +222,6 @@ function DashboardCustomer() {
           >
             {invoices.length > 0 ? (
               invoices.map((item) => (
-          
                 <MenuItem key={item.id}>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <img
@@ -223,7 +230,9 @@ function DashboardCustomer() {
                           ? `http://127.0.0.1:8000/${item.invoice_item.foto}`
                           : "https://via.placeholder.com/50"
                       }
-                      alt={item.invoice_item?.nama_item || "Menu Tidak Ditemukan"}
+                      alt={
+                        item.invoice_item?.nama_item || "Menu Tidak Ditemukan"
+                      }
                       style={{
                         width: 50,
                         height: 50,
@@ -239,6 +248,64 @@ function DashboardCustomer() {
                         {item.jumlah_porsi}x - Rp{" "}
                         {item.total_harga.toLocaleString("id-ID")}
                       </Typography>
+                      <Button
+                        variant="contained"
+                        sx={{ mt: 1 }}
+                        onClick={() => handleDetailInvoice(item)}
+                      >
+                        Rincian
+                      </Button>
+                      <Dialog
+                        open={openInvoiceDialog}
+                        onClose={handleCloseDetailInvoice}
+                      >
+                        <DialogTitle>Rincian Invoice</DialogTitle>
+                        <DialogContent>
+                          {selectedInvoice && (
+                            <>
+                              <img
+                                  src={
+                                    selectedInvoice.invoice_item?.foto
+                                      ? `http://127.0.0.1:8000/${selectedInvoice.invoice_item.foto}`
+                                      : "https://via.placeholder.com/150"
+                                  }
+                                  alt={selectedInvoice.invoice_item?.nama_item || "Gambar tidak tersedia"}
+                                  style={{
+                                    width: "100%",
+                                    maxHeight: "200px",
+                                    objectFit: "cover",
+                                    borderRadius: "5px",
+                                    marginBottom: "10px",
+                                  }}
+                                />
+                              <Typography variant="body1">
+                                Nama Restoran: {selectedInvoice.invoice_item?.nama_perusahaan}
+                              </Typography>
+                              <Typography variant="body1">
+                                Menu: {selectedInvoice.invoice_item?.nama_item}
+                              </Typography>
+                              <Typography variant="body1">
+                                Jumlah Porsi: {selectedInvoice.jumlah_porsi}
+                              </Typography>
+                              <Typography variant="body1">
+                                Total Harga: Rp{" "}
+                                {selectedInvoice.total_harga.toLocaleString(
+                                  "id-ID"
+                                )}
+                              </Typography>
+                              <Typography variant="body1">
+                                Tanggal Pemesanan:{" "}
+                                {selectedInvoice.tanggal_pengiriman_makanan}
+                              </Typography>
+                            </>
+                          )}
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={handleCloseDetailInvoice}>
+                            Tutup
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
                     </Box>
                   </Box>
                 </MenuItem>
@@ -247,6 +314,7 @@ function DashboardCustomer() {
               <MenuItem>Tidak ada item di keranjang</MenuItem>
             )}
           </Menu>
+
           <Button
             color="inherit"
             onClick={() => {
