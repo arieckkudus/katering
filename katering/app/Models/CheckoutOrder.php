@@ -32,4 +32,11 @@ class CheckoutOrder extends Model
     {
         return $this->belongsTo(MenuitemMerchant::class, 'id_menu_item', 'id');
     }
+
+    public function profileMerchant()
+    {
+        return $this->belongsTo(ProfileMerchant::class, 'id_profile_merchant', 'id');
+    }
+
+
 }

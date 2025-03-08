@@ -277,7 +277,8 @@ class CustomerController extends Controller
 
         $invoiceItems = CheckoutOrder::where('id_user', $checkUser->id)
             ->where('status', '2') // Hanya yang status = 2 (invoice)
-            ->with('invoiceItem') // Mengambil data menu item terkait
+            ->with('invoiceItem')
+            ->with('menuItem.profileMerchant')
             ->get();
 
         return response()->json([

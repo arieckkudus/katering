@@ -41,6 +41,8 @@ function DashboardCustomer() {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   const handleDetailInvoice = (item) => {
+    console.log(item);
+    
     setSelectedInvoice(item);
     setOpenInvoiceDialog(true);
   };
@@ -279,7 +281,7 @@ function DashboardCustomer() {
                                   }}
                                 />
                               <Typography variant="body1">
-                                Nama Restoran: {selectedInvoice.invoice_item?.nama_perusahaan}
+                                Nama Restoran: {selectedInvoice.menu_item?.profile_merchant.nama_perusahaan}
                               </Typography>
                               <Typography variant="body1">
                                 Menu: {selectedInvoice.invoice_item?.nama_item}

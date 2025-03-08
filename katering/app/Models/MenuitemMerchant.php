@@ -26,6 +26,9 @@ class MenuitemMerchant extends Model
         return $this->hasMany(CheckoutOrder::class, 'id_menu_item', 'id');
     }
 
-
+    public function profileMerchant()
+    {
+        return $this->belongsTo(ProfileMerchant::class, 'id_profile_merchant', 'id');
+    }
 
 }
